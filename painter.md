@@ -11,8 +11,10 @@ classDiagram
     }
     class Services {
         <<static>>
-        +GetMainWindow() Window\(+GetImageController() IImageController\)
-        +GetImageSettings() ImageSettings\(+GetPalette() Palette\)
+        +GetMainWindow() Window
+        +GetImageController() IImageController
+        +GetImageSettings() ImageSettings
+        +GetPalette() Palette
     }
 
     %% Клиентская часть и контроллеры
@@ -34,7 +36,7 @@ classDiagram
     MainWindow --> IUiAction : Содержит список действий
     IUiAction --> MenuCategory : Фильтрует расположение
 
-    %% Действия
+    note "КОНКРЕТНЫЕ ДЕЙСТВИЯ"
     class ImageSettingsAction {
         -IImageController imageController
         -ImageSettings imageSettings
@@ -78,12 +80,12 @@ classDiagram
     MainWindow --> AvaloniaImageController : Управляет выводом
 
     %% Отрегулированные связи нижнего уровня 
-    ImageSettingsAction ---> IImageController : Обновляет холст
-    ImageSettingsAction ---> ImageSettings : Изменяет размеры
-    ImageSettingsAction ...> SettingsForm : Открывает модально
+    ImageSettingsAction ----> IImageController : <small>Обновляет холст</small>
+    ImageSettingsAction ----> ImageSettings : <small>Изменяет размеры</small>
+    ImageSettingsAction ..> SettingsForm : <small>Открывает модально</small>
     
-    SaveImageAction ---> IImageController : Вызывает сохранение
+    SaveImageAction ----> IImageController : <small>Вызывает сохранение</small>
     
-    PaletteSettingsAction ---> Palette : Передает для редактирования
-    PaletteSettingsAction ...> SettingsForm : Открывает модально
+    PaletteSettingsAction ----> Palette : <small>Передает для редактирования</small>
+    PaletteSettingsAction ..> SettingsForm : <small>Открывает модально</small>
 ```
