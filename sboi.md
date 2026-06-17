@@ -1,6 +1,6 @@
 ```mermaid
 classDiagram
-    %% Определение перечисления
+    %% Перечисление
     class FailureType {
         <<enumeration>>
         UnexpectedShutdown = 0
@@ -9,7 +9,7 @@ classDiagram
         ConnectionProblems = 3
     }
 
-    %% Определение классов
+    %% Классы
     class Device {
         +int Id
         +string Name
@@ -25,15 +25,13 @@ classDiagram
     }
 
     class ReportMaker {
-        +FindDevicesFailedBeforeDate(DateTime targetDate, List~Failure~ failures, List~Device~ devices) List~string~
-        +FindDevicesFailedBeforeDateObsolete(int day, int month, int year, int[] failureTypes, int[] deviceId, object[][] times, List~Dictionary~string_object~~ devices) List~string~
+        +FindDevicesFailedBeforeDate(DateTime, List~Failure~, List~Device~) List~string~
+        +FindDevicesFailedBeforeDateObsolete(int, int, int, int[], int[], object[][], List) List~string~
     }
 
-    %% Определение связей и структурных отношений
     Failure --> FailureType : Имеет тип
     Failure --> Device : Зарегистрирован на (DeviceId)
     
-    %% Зависимости логики (генератор отчетов обрабатывает списки этих сущностей)
     ReportMaker ..> Device : Анализирует список устройств
     ReportMaker ..> Failure : Фильтрует список сбоев
 ```
