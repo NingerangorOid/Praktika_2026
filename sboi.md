@@ -25,8 +25,8 @@ classDiagram
     }
 
     class ReportMaker {
-        +FindDevicesFailedBeforeDate(DateTime targetDate, List~Failure~ failures, List~Device~ devices)\ List~string~
-        +FindDevicesFailedBeforeDateObsolete(int day, int month, int year, int[] failureTypes, int[] deviceId, object[][] times, List~Dictionary~string_object~~ devices)\ List~string~
+        +FindDevicesFailedBeforeDate(DateTime targetDate, List~Failure~ failures, List~Device~ devices) List~string~
+        +FindDevicesFailedBeforeDateObsolete(int day, int month, int year, int[] failureTypes, int[] deviceId, object[][] times, List~Dictionary~string_object~~ devices) List~string~
     }
 
     %% Определение связей и структурных отношений
