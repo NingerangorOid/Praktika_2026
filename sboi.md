@@ -1,3 +1,4 @@
+```mermaid
 classDiagram
     %% Определение перечисления
     class FailureType {
@@ -24,11 +25,15 @@ classDiagram
     }
 
     class ReportMaker {
-        +FindDevicesFailedBeforeDate(DateTime targetDate, List~Failure~ failures, List~Device~ devices)$ List~string~
-        +FindDevicesFailedBeforeDateObsolete(int day, int month, int year, int[] failureTypes, int[] deviceId, object[][] times, List~Dictionary~string_object~~ devices)$ List~string~
+        +FindDevicesFailedBeforeDate(DateTime targetDate, List~Failure~ failures, List~Device~ devices)\$ List~string~
+        +FindDevicesFailedBeforeDateObsolete(int day, int month, int year, int[] failureTypes, int[] deviceId, object[][] times, List~Dictionary~string_object~~ devices)\$ List~string~
     }
 
-    %% Определение связей и зависимостей
-    Failure --> FailureType : Содержит тип (FailureType)
-    ReportMaker ..> Device : Зависит/Использует в методах
-    ReportMaker ..> Failure : Зависит/Использует в методах
+    %% Определение связей и структурных отношений
+    Failure --> FailureType : Имеет тип
+    Failure --> Device : Зарегистрирован на (DeviceId)
+    
+    %% Зависимости логики (генератор отчетов обрабатывает списки этих сущностей)
+    ReportMaker ..> Device : Анализирует список устройств
+    ReportMaker ..> Failure : Фильтрует список сбоев
+```
