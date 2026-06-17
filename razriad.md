@@ -11,26 +11,23 @@ classDiagram
     %% Статический класс с методами расширения для коллекций
     class ControlDigitExtensions {
         <<utility>>
-        +ToDigits(long number)\$ IEnumerable~int~
-        +SumMappedDigits(IEnumerable~int~ digits, Func~int_int_int~ func)\$ int
+        +ToDigits(long number)\$ IEnumerable
+        +SumMappedDigits(IEnumerable digits, Func func)\$ int
         +GetComplementToTen(int sum)\$ int
         +MapLuhnDigit(int digit)\$ int
     }
 
-    %% Системные зависимости .NET, воспользованные в архитектуре
-    class IEnumerable~T~ {
-        <<interface>>
+    %% Группировка внешних зависимостей .NET 
+    namespace System_DotNET {
+        class IEnumerable
+        class Func
     }
 
-    class Func~T1_T2_TResult~ {
-        <<interface>>
-    }
-
-    %% Связи зависимостей и методов расширения
+    %% Связи зависимостей и использования методов расширения
     ControlDigitAlgo ..> ControlDigitExtensions : Использует методы расширения
-    ControlDigitExtensions ..> IEnumerable~T~ : Расширяет и обрабатывает
-    ControlDigitExtensions ..> Func~T1_T2_TResult~ : Принимает лямбда-выражения весов
+    ControlDigitExtensions ..> IEnumerable : Расширяет и обрабатывает
+    ControlDigitExtensions ..> Func : Принимает лямбда-выражения
     
-    %% Логические зависимости самих алгоритмов от функций высшего порядка
-    ControlDigitAlgo ..> Func~T1_T2_TResult~ : Передает формулы расчета весов
+    %% Логические зависимости алгоритмов от функций высшего порядка
+    ControlDigitAlgo ..> Func : Передает формулы расчета весов
 ```
