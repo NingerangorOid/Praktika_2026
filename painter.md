@@ -1,6 +1,29 @@
 ```mermaid
 classDiagram
-    %% Базовые интерфейсы и перечисления
+    direction TB
+    
+    %% Базовые типы и инфраструктура
+    class Window { <<external>> }
+    class MenuCategory {
+        <<enumeration>>
+        File
+        Settings
+    }
+    class Services {
+        <<static>>
+        +GetMainWindow() Window\(+GetImageController() IImageController\)
+        +GetImageSettings() ImageSettings\(+GetPalette() Palette\)
+    }
+
+    %% Клиентская часть и контроллеры
+    class MainWindow {
+        -int MenuSize
+        -InitializeComponent() void
+        -CreateSettingsManager() SettingsManager\$
+    }
+    Window <|-- MainWindow : Наследует
+    MainWindow ..> Services : Разрешает зависимости
+
     class IUiAction {
         <<interface>>
         +MenuCategory Category
@@ -8,94 +31,59 @@ classDiagram
         +CanExecute(object) bool
         +Execute(object) void
     }
+    MainWindow --> IUiAction : Содержит список действий
+    IUiAction --> MenuCategory : Фильтрует расположение
 
-    class MenuCategory {
-        <<enumeration>>
-        File
-        Settings
+    %% Действия
+    class ImageSettingsAction {
+        -IImageController imageController
+        -ImageSettings imageSettings
+        +Execute(object) void
     }
+    class SaveImageAction {
+        -IImageController imageController
+        +Execute(object) void
+    }
+    class PaletteSettingsAction {
+        -Palette palette
+        +Execute(object) void
+    }
+    
+    IUiAction <|.. ImageSettingsAction
+    IUiAction <|.. SaveImageAction
+    IUiAction <|.. PaletteSettingsAction
 
-    %% Компоненты UI 
-    class Window {
-        <<external>>
+    %% Доменная модель и внешние формы
+    class ImageSettings {
+        +int Width
+        +int Height
     }
-    class MainWindow {
-        -int MenuSize
-        -InitializeComponent() void
-        -CreateSettingsManager()\$ SettingsManager
-    }
-    Window <|-- MainWindow : Наследует
-
+    class Palette { <<external>> }
     class SettingsForm {
         <<external>>
         +SettingsForm(object)
         +ShowDialog(Window) Task
     }
 
-    %% Реализации IUiAction
-    class ImageSettingsAction {
-        -IImageController imageController
-        -ImageSettings imageSettings
-        +Execute(object) void
-    }
-    IUiAction <|.. ImageSettingsAction : Реализует
-
-    class SaveImageAction {
-        -IImageController imageController
-        +Execute(object) void
-    }
-    IUiAction <|.. SaveImageAction : Реализует
-
-    class PaletteSettingsAction {
-        -Palette palette
-        +Execute(object) void
-    }
-    IUiAction <|.. PaletteSettingsAction : Реализует
-
-    %% Внешние доменные сущности 
     class IImageController {
         <<interface>>
         +RecreateImage(ImageSettings) void
         +SaveImage(string) void
     }
-    
     class AvaloniaImageController {
         +SetControl(ImageControl) void
         +RecreateImage(ImageSettings) void
     }
-    IImageController <|.. AvaloniaImageController : Реализует
+    IImageController <|.. AvaloniaImageController
+    MainWindow --> AvaloniaImageController : Управляет выводом
 
-    class ImageSettings {
-        +int Width
-        +int Height
-    }
-    class Palette {
-        <<external>>
-    }
+    %% Отрегулированные связи нижнего уровня 
+    ImageSettingsAction ---> IImageController : Обновляет холст
+    ImageSettingsAction ---> ImageSettings : Изменяет размеры
+    ImageSettingsAction ...> SettingsForm : Открывает модально
     
-    class Services {
-        <<static>>
-        +GetMainWindow()\$ Window
-        +GetImageController()\$ IImageController
-        +GetImageSettings()\$ ImageSettings
-        +GetPalette()\$ Palette
-    }
-
-    %% Связи композиции и агрегации 
-    MainWindow --> IUiAction : Содержит список действий
-    MainWindow --> AvaloniaImageController : Управляет выводом графики
-
-    %% Связи зависимостей действий
-    ImageSettingsAction --> IImageController : Обновляет холст
-    ImageSettingsAction --> ImageSettings : Изменяет размеры
-    ImageSettingsAction ..> SettingsForm : Открывает модально
+    SaveImageAction ---> IImageController : Вызывает сохранение
     
-    SaveImageAction --> IImageController : Вызывает сохранение файла
-    
-    PaletteSettingsAction --> Palette : Передает для редактирования
-    PaletteSettingsAction ..> SettingsForm : Открывает модально
-
-    %% Использование глобального сервис-локатора
-    MainWindow ..> Services : Разрешает зависимости в ctor
-    IUiAction --> MenuCategory : Фильтрует расположение в меню
+    PaletteSettingsAction ---> Palette : Передает для редактирования
+    PaletteSettingsAction ...> SettingsForm : Открывает модально
 ```
