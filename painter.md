@@ -36,7 +36,6 @@ classDiagram
     MainWindow --> IUiAction : Содержит список действий
     IUiAction --> MenuCategory : Фильтрует расположение
 
-    note "КОНКРЕТНЫЕ ДЕЙСТВИЯ"
     class ImageSettingsAction {
         -IImageController imageController
         -ImageSettings imageSettings
@@ -80,12 +79,12 @@ classDiagram
     MainWindow --> AvaloniaImageController : Управляет выводом
 
     %% Отрегулированные связи нижнего уровня 
-    ImageSettingsAction ----> IImageController : <small>Обновляет холст</small>
-    ImageSettingsAction ----> ImageSettings : <small>Изменяет размеры</small>
-    ImageSettingsAction ..> SettingsForm : <small>Открывает модально</small>
+    ImageSettingsAction --> IImageController : <small>обновляет холст</small>
+    ImageSettingsAction --> ImageSettings : <small>изменяет размеры</small>
+    ImageSettingsAction ..> SettingsForm : <small>открывает модально</small>
     
-    SaveImageAction ----> IImageController : <small>Вызывает сохранение</small>
+    SaveImageAction --> IImageController : <small>вызывает сохранение</small>
     
-    PaletteSettingsAction ----> Palette : <small>Передает для редактирования</small>
-    PaletteSettingsAction ..> SettingsForm : <small>Открывает модально</small>
+    PaletteSettingsAction --> Palette : <small>передает для редактирования</small>
+    PaletteSettingsAction ..> SettingsForm : <small>открывает модально</small>
 ```
