@@ -15,11 +15,14 @@ classDiagram
         +GetImageController() IImageController
         +GetImageSettings() ImageSettings
         +GetPalette() Palette
+        +SetMainWindow(Window) void
     }
 
-    %% Клиентская часть и контроллеры
+    %% Клиентская часть приложения (Окна)
     class MainWindow {
         -int MenuSize
+        +MainWindow()
+        +MainWindow(IUiAction[], AvaloniaImageController)
         -InitializeComponent() void
         -CreateSettingsManager() SettingsManager\$
     }
@@ -36,17 +39,21 @@ classDiagram
     MainWindow --> IUiAction : Содержит список действий
     IUiAction --> MenuCategory : Фильтрует расположение
 
+    %% Именованные действия UI (Реализации интерфейса экшенов)
     class ImageSettingsAction {
-        -IImageController imageController
-        -ImageSettings imageSettings
+        -IImageController _imageController
+        -ImageSettings _imageSettings
+        -Func _getMainWindow
         +Execute(object) void
     }
     class SaveImageAction {
-        -IImageController imageController
+        -Func _getMainWindow
+        -IImageController _imageController
         +Execute(object) void
     }
     class PaletteSettingsAction {
-        -Palette palette
+        -Palette _palette
+        -Func _getMainWindow
         +Execute(object) void
     }
     
@@ -54,7 +61,15 @@ classDiagram
     IUiAction <|.. SaveImageAction
     IUiAction <|.. PaletteSettingsAction
 
-    %% Доменная модель и внешние формы
+    %% Новые фрактальные экшены, найденные в коде вашего конструктора MainWindow
+    namespace Fractals_Actions {
+        class DragonFractalAction
+        class KochFractalAction
+    }
+    IUiAction <|.. DragonFractalAction : Реализует
+    IUiAction <|.. KochFractalAction : Реализует
+
+    %% Доменная модель и формы настроек
     class ImageSettings {
         +int Width
         +int Height
@@ -78,7 +93,7 @@ classDiagram
     IImageController <|.. AvaloniaImageController
     MainWindow --> AvaloniaImageController : Управляет выводом
 
-    %% Отрегулированные связи нижнего уровня 
+    %% Стабильные связи нижнего уровня с мелким шрифтом
     ImageSettingsAction --> IImageController : <small>обновляет холст</small>
     ImageSettingsAction --> ImageSettings : <small>изменяет размеры</small>
     ImageSettingsAction ..> SettingsForm : <small>открывает модально</small>
