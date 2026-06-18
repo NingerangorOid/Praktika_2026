@@ -2,7 +2,8 @@
 classDiagram
     %% Главный класс-контейнер и перечисления
     class DotGraphBuilder {
-        +DirectedGraph(string) IGraphBuilder\(+UndirectedGraph(string) IGraphBuilder\)
+        +DirectedGraph(string)\$ IGraphBuilder
+        +UndirectedGraph(string)\$ IGraphBuilder
     }
     
     class NodeShape {
@@ -45,7 +46,7 @@ classDiagram
         +Weight(double) IEdgeAttributesBuilder
     }
 
-    %% Реализации строителей
+    %% Вложенные классы
     class GraphBuilder {
         +Graph Graph
         +AddNode(string) INodeBuilder
@@ -88,21 +89,23 @@ classDiagram
     }
     IEdgeAttributesBuilder <|.. EdgeAttributesBuilder : Реализует
 
-    %% Внешние доменные зависимости (модели Графа)
-    namespace Graph_Model {
-        class Graph
-        class GraphNode
-        class GraphEdge
+    %% Внешние доменные зависимости (модели самого Графа)
+    class Graph
+    class GraphNode {
+        +Dictionary Attributes
+    }
+    class GraphEdge {
+        +Dictionary Attributes
     }
 
-    %% Связи владения вложенными классами 
-    DotGraphBuilder *--> GraphBuilder : Содержит приватный класс
-    DotGraphBuilder *--> NodeBuilder : Содержит приватный класс
-    DotGraphBuilder *--> EdgeBuilder : Содержит приватный класс
-    DotGraphBuilder *--> NodeAttributesBuilder : Содержит приватный класс
-    DotGraphBuilder *--> EdgeAttributesBuilder : Содержит приватный класс
+    %% Вложенность классов внутри DotGraphBuilder
+    DotGraphBuilder +-- GraphBuilder
+    DotGraphBuilder +-- NodeBuilder
+    DotGraphBuilder +-- EdgeBuilder
+    DotGraphBuilder +-- NodeAttributesBuilder
+    DotGraphBuilder +-- EdgeAttributesBuilder
 
-    %% Перекрестные связи (Переходы состояний)
+    %% Перекрестные связи строителей (Переходы состояний)
     GraphBuilder --> Graph : Управляет структурой
     NodeBuilder --> GraphBuilder : Возвращает контекст
     NodeBuilder --> GraphNode : Конфигурирует
