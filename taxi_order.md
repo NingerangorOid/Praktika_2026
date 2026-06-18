@@ -1,15 +1,14 @@
 ```mermaid
 classDiagram
-    %% Базовые инфраструктурные классы
-    class Entity~TId~ {
-        <<abstract>>
-        +TId Id
-    }
-    class ValueType~T~ {
-        <<abstract>>
+    direction TB
+
+    %% Базовая инфраструктура DDD
+    namespace DDD_Core {
+        class Entity~TId~ { <<abstract>> }
+        class ValueType { <<abstract>> }
     }
 
-    %% Объекты-значения
+    %% Объекты-значения (Value Objects)
     class Car {
         +string Model
         +string Color
@@ -23,8 +22,11 @@ classDiagram
         +string Street
         +string Building
     }
+    ValueType <|-- Car
+    ValueType <|-- PersonName
+    ValueType <|-- Address
 
-    %% Сущности
+    %% Доменные Сущности (Entities)
     class Driver {
         +PersonName Name
         +Car Car
@@ -44,8 +46,10 @@ classDiagram
         +FinishRide(DateTime) void
         +Cancel(DateTime) void
     }
+    Entity <|-- Driver : <small>идентификация по ID</small>
+    Entity <|-- TaxiOrder : <small>идентификация по ID</small>
 
-    %% Перечисления
+    %% Жизненный цикл (Перечисление)
     class TaxiOrderStatus {
         <<enumeration>>
         WaitingForDriver
@@ -55,35 +59,21 @@ classDiagram
         Canceled
     }
 
-    %% Наследование базовых типов DDD
-    Entity <|-- Driver : Идентификация по ID
-    Entity <|-- TaxiOrder : Идентификация по ID
-    ValueType <|-- Car : Сравнение по свойствам
-    ValueType <|-- PersonName : Сравнение по свойствам
-    ValueType <|-- Address : Сравнение по свойствам
-
-    %% Композиция и агрегация внутренних свойств
-    Driver *--> PersonName : Имя водителя
-    Driver *--> Car : Автомобиль
-    TaxiOrder *--> PersonName : Имя клиента
-    TaxiOrder *--> Address : Точки маршрута
-    TaxiOrder --> Driver : Назначенный водитель
-    TaxiOrder --> TaxiOrderStatus : Текущий статус
-
-    %% Сервисы и интерфейсы
-    class ITaxiApi~TTaxiOrder~ {
-        <<interface>>
-    }
-
+    %% Слои бизнес-логики и сервисов
     class DriversRepository {
         +GetDriver(int) Driver
-        +FillDriverToOrder(int, TaxiOrder) void
+    }
+
+    class OrderAssignmentService {
+        -DriversRepository _driversRepo
+        +BindDriverToOrder(int, TaxiOrder, DateTime) void
     }
 
     class TaxiApi {
-        -DriversRepository driversRepo
-        -Func~DateTime~ currentTime
-        -int idCounter
+        -DriversRepository _driversRepo
+        -OrderAssignmentService _assignmentService
+        -Func~DateTime~ _currentTime
+        -int _idCounter
         +CreateOrderWithoutDestination(string, Address) TaxiOrder
         +UpdateDestination(TaxiOrder, Address) void
         +AssignDriver(TaxiOrder, int) void
@@ -91,11 +81,25 @@ classDiagram
         +GetDriverFullInfo(TaxiOrder) string
         +GetShortOrderInfo(TaxiOrder) string
         +Cancel(TaxiOrder) void
+        +StartRide(TaxiOrder) void
+        +FinishRide(TaxiOrder) void
     }
 
-    %% Зависимости управления cервисами
-    ITaxiApi <|.. TaxiApi : Реализует интерфейс
-    TaxiApi --> DriversRepository : Запрашивает данные
-    TaxiApi ..> TaxiOrder : Управляет жизненным циклом
-    DriversRepository ..> Driver : Извлекает сущность
+    %% Отношения агрегации внутри Домена
+    Driver *--> Car : <small>включает авто</small>
+    Driver *--> PersonName : <small>включает имя</small>
+    TaxiOrder *--> PersonName : <small>данные клиента</small>
+    TaxiOrder *--> Address : <small>точки пути</small>
+    TaxiOrder --> Driver : <small>назначен</small>
+    TaxiOrder --> TaxiOrderStatus : <small>состояние</small>
+
+    %% Чистая архитектура связей
+    DriversRepository ..> Driver : <small>находит водителя</small>
+    OrderAssignmentService --> DriversRepository : <small>запрашивает объект</small>
+    OrderAssignmentService ..> TaxiOrder : <small>вызывает метод</small>
+
+    %% Инкапсуляция фасада API
+    TaxiApi --> DriversRepository : <small>хранит ссылку</small>
+    TaxiApi *--> OrderAssignmentService : <small>компонует сервис</small>
+    TaxiApi ..> TaxiOrder : <small>управляет циклом</small>
 ```
