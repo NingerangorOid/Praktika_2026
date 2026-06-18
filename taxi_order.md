@@ -2,13 +2,13 @@
 classDiagram
     direction TB
 
-    %% Базовая инфраструктура DDD
+    %% Базовая инфраструктура
     namespace DDD_Core {
         class Entity~TId~ { <<abstract>> }
         class ValueType { <<abstract>> }
     }
 
-    %% Объекты-значения (Value Objects)
+    %% Объекты-значения 
     class Car {
         +string Model
         +string Color
@@ -26,7 +26,7 @@ classDiagram
     ValueType <|-- PersonName
     ValueType <|-- Address
 
-    %% Доменные Сущности (Entities)
+    %% Доменные Сущности 
     class Driver {
         +PersonName Name
         +Car Car
@@ -49,7 +49,7 @@ classDiagram
     Entity <|-- Driver : <small>идентификация по ID</small>
     Entity <|-- TaxiOrder : <small>идентификация по ID</small>
 
-    %% Жизненный цикл (Перечисление)
+    %% Жизненный цикл
     class TaxiOrderStatus {
         <<enumeration>>
         WaitingForDriver
@@ -93,7 +93,7 @@ classDiagram
     TaxiOrder --> Driver : <small>назначен</small>
     TaxiOrder --> TaxiOrderStatus : <small>состояние</small>
 
-    %% Чистая архитектура связей
+    %% Aрхитектура связей
     DriversRepository ..> Driver : <small>находит водителя</small>
     OrderAssignmentService --> DriversRepository : <small>запрашивает объект</small>
     OrderAssignmentService ..> TaxiOrder : <small>вызывает метод</small>
