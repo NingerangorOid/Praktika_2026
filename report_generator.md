@@ -1,6 +1,8 @@
 ```mermaid
 classDiagram
-    %% Интерфейсы
+    direction TB
+
+    %% Интерфейсы стратегий
     class IReportFormatter {
         <<interface>>
         +MakeCaption(string) string
@@ -15,14 +17,14 @@ classDiagram
         +MakeStatistics(IEnumerable~double~) object
     }
 
-    %% Интерфейс форматирования
+    %% Реализации форматирования
     class HtmlFormatter {
         +MakeCaption(string) string
         +BeginList() string
         +EndList() string
         +MakeItem(string, string) string
     }
-    IReportFormatter <|.. HtmlFormatter : Реализует
+    IReportFormatter <|.. HtmlFormatter : <small>реализует</small>
 
     class MarkdownFormatter {
         +MakeCaption(string) string
@@ -30,26 +32,33 @@ classDiagram
         +EndList() string
         +MakeItem(string, string) string
     }
-    IReportFormatter <|.. MarkdownFormatter : Реализует
+    IReportFormatter <|.. MarkdownFormatter : <small>реализует</small>
 
-    %% Интерфейс калькулятора
+    %% Реализации калькулятора
     class MeanAndStdCalculator {
         +Caption string
         +MakeStatistics(IEnumerable~double~) object
     }
-    IStatisticsCalculator <|.. MeanAndStdCalculator : Реализует
+    IStatisticsCalculator <|.. MeanAndStdCalculator : <small>реализует</small>
 
     class MedianCalculator {
         +Caption string
         +MakeStatistics(IEnumerable~double~) object
     }
-    IStatisticsCalculator <|.. MedianCalculator : Реализует
+    IStatisticsCalculator <|.. MedianCalculator : <small>реализует</small>
 
-    %% Класс данных
-    class Measurement {
-        +Temperature double
-        +Humidity double
+    %% Вспомогательные структуры и модели данных
+    namespace Domain_Models {
+        class Measurement {
+            +Temperature double
+            +Humidity double
+        }
+        class MeanAndStd {
+            +Mean double
+            +Std double
+        }
     }
+    MeanAndStdCalculator ..> MeanAndStd : <small>возвращает объект</small>
 
     %% Основной класс генератора отчетов
     class ReportMaker {
@@ -58,21 +67,22 @@ classDiagram
         +ReportMaker(IReportFormatter, IStatisticsCalculator)
         +MakeReport(IEnumerable~Measurement~) string
     }
-    ReportMaker --> IReportFormatter : Стратегия форматирования
-    ReportMaker --> IStatisticsCalculator : Стратегия расчета
-    ReportMaker ..> Measurement : Обрабатывает данные
+    ReportMaker --> IReportFormatter : <small>компонует форматтер</small>
+    ReportMaker --> IStatisticsCalculator : <small>компонует калькулятор</small>
+    ReportMaker ..> Measurement : <small>обрабатывает данные</small>
 
-    %% Вспомогательный класс
+    %% Вспомогательный класс фабрики
     class ReportMakerHelper {
+        <<static>>
+        -BuildTypedReport(IEnumerable~Measurement~)\$ string
         +MeanAndStdHtmlReport(IEnumerable~Measurement~)\$ string
         +MedianMarkdownReport(IEnumerable~Measurement~)\$ string
         +MeanAndStdMarkdownReport(IEnumerable~Measurement~)\$ string
         +MedianHtmlReport(IEnumerable~Measurement~)\$ string
     }
-    
-    ReportMakerHelper ..> ReportMaker : Создает экземпляры
-    ReportMakerHelper ..> HtmlFormatter : Инициализирует
-    ReportMakerHelper ..> MarkdownFormatter : Инициализирует
-    ReportMakerHelper ..> MeanAndStdCalculator : Инициализирует
-    ReportMakerHelper ..> MedianCalculator : Инициализирует
+    ReportMakerHelper ..> ReportMaker : <small>создает экземпляры</small>
+    ReportMakerHelper ..> HtmlFormatter : <small>инициализирует</small>
+    ReportMakerHelper ..> MarkdownFormatter : <small>инициализирует</small>
+    ReportMakerHelper ..> MeanAndStdCalculator : <small>инициализирует</small>
+    ReportMakerHelper ..> MedianCalculator : <small>инициализирует</small>
 ```
