@@ -1,6 +1,8 @@
 ```mermaid
 classDiagram
-    %% Перечисление
+    direction TB
+
+    %% Определение перечисления
     class FailureType {
         <<enumeration>>
         UnexpectedShutdown = 0
@@ -9,29 +11,33 @@ classDiagram
         ConnectionProblems = 3
     }
 
-    %% Классы
+    %% Определение классов
     class Device {
         +int Id
         +string Name
-        +Device(int id, string name)
+        +Device(int, string)
+        +FromDictionary(Dictionary)\$ Device
     }
 
     class Failure {
         +int DeviceId
-        +FailureType FailureType
+        +FailureType Type
         +DateTime Date
-        +Failure(int deviceId, FailureType failureType, DateTime date)
+        +Failure(int, FailureType, DateTime)
         +IsSerious() bool
+        +Create(int, int, object[])\$ Failure
     }
 
     class ReportMaker {
-        +FindDevicesFailedBeforeDate(DateTime, List~Failure~, List~Device~) List~string~
-        +FindDevicesFailedBeforeDateObsolete(int, int, int, int[], int[], object[][], List) List~string~
+        +FindDevicesFailedBeforeDate(DateTime, Failure[], Device[])\$ List~string~
+        +FindDevicesFailedBeforeDateObsolete(int, int, int, int[], int[], object[][], List)\$ List~string~
     }
 
-    Failure --> FailureType : Имеет тип
-    Failure --> Device : Зарегистрирован на (DeviceId)
+    %% Структурные связи
+    Failure --> FailureType : <small>имеет тип</small>
+    Failure --> Device : <small>зарегистрирован на (DeviceId)</small>
     
-    ReportMaker ..> Device : Анализирует список устройств
-    ReportMaker ..> Failure : Фильтрует список сбоев
+    %% Зависимости логики обработки
+    ReportMaker ..> Device : <small>фильтрует по ID</small>
+    ReportMaker ..> Failure : <small>проверяет критичность</small>
 ```
