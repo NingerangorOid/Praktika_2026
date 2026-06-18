@@ -1,65 +1,64 @@
 ```mermaid
 classDiagram
-    class IMoveCommand {
-        <<interface>>
-        +Point Destination
+    direction TB
+
+    %% Системные интерфейсы и команды 
+    namespace Commands_Model {
+        class IMoveCommand { <<interface>> }
+        class IShooterMoveCommand { <<interface>> }
+        class ShooterCommand
+        class BuilderCommand
     }
-    class IShooterMoveCommand {
-        <<interface>>
-        +bool ShouldHide
-    }
-    IMoveCommand <|-- IShooterMoveCommand : Наследование
+    IMoveCommand <|-- IShooterMoveCommand
+    IShooterMoveCommand <|.. ShooterCommand
+    IMoveCommand <|.. BuilderCommand
 
-    class ShooterCommand
-    class BuilderCommand
-
-    IShooterMoveCommand <|.. ShooterCommand : Реализация
-    IMoveCommand <|.. BuilderCommand : Реализация
-
-    class IRobotAI {
+    %% Базовые обобщенные контракты устройств и ИИ
+    class IRobotAI~out TCommand~ {
         <<interface>>
         +GetCommand() TCommand
     }
-    class IDevice {
+    class IDevice~in TCommand~ {
         <<interface>>
         +ExecuteCommand(TCommand) string
     }
 
-    class ShooterAI {
-        -int counter
-        +GetCommand() ShooterCommand
+    %% Новая обобщенная логика 
+    class RobotAI~TCommand~ {
+        -int _executionCounter
+        -Func _commandFactory
+        +GetCommand() TCommand
     }
-    IRobotAI <|.. ShooterAI
+    IRobotAI <|.. RobotAI : <small>реализует контракт</small>
 
-    class BuilderAI {
-        -int counter
-        +GetCommand() BuilderCommand
+    class Mover~TCommand~ {
+        +ExecuteCommand(TCommand) string
     }
-    IRobotAI <|.. BuilderAI
+    IDevice <|.. Mover : <small>реализует контракт</small>
 
-    class Mover {
-        +ExecuteCommand(IMoveCommand) string
-    }
-    IDevice <|.. Mover
+    %% Наследники конкретных реализаций
+    class ShooterAI { +ShooterAI() }
+    class BuilderAI { +BuilderAI() }
+    RobotAI <|-- ShooterAI : <small>наследует ИИ</small>
+    RobotAI <|-- BuilderAI : <small>наследует ИИ</small>
 
-    class ShooterMover {
-        +ExecuteCommand(IShooterMoveCommand) string
-    }
-    IDevice <|.. ShooterMover
+    class Mover { +Mover() }
+    class ShooterMover { +ExecuteCommand(IShooterMoveCommand) string }
+    Mover <|-- Mover : <small>базовый класс</small>
+    Mover <|-- ShooterMover : <small>расширяет логику</small>
 
-    %% Главный класс Робота
-    class Robot {
-        -IRobotAI ai
-        -IDevice device
+    %% Главный класс Робота и Фабрика вывода типов
+    class Robot~TCommand~ {
+        -IRobotAI _brain
+        -IDevice _actuator
         +Robot(IRobotAI, IDevice)
-        +Start(int) IEnumerable~string~
+        +Start(int) IEnumerable
     }
-    Robot *-- IRobotAI : Композиция AI
-    Robot *-- IDevice : Композиция Device
+    Robot *--> IRobotAI : <small>композиция ИИ</small>
+    Robot *--> IDevice : <small>композиция устройства</small>
 
-    
     class RobotFactory["Robot (Static Factory)"] {
         +Create(IRobotAI, IDevice)\$ Robot
     }
-    RobotFactory ..> Robot : Создает инстансы
+    RobotFactory ..> Robot : <small>создает экземпляры</small>
 ```
