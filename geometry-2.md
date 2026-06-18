@@ -1,14 +1,18 @@
 ```mermaid
 classDiagram
-    %% Внешние структуры
-    class Vector3 {
-        +double X
-        +double Y
-        +double Z
+    direction TB
+
+    %% Внешние вспомогательные структуры данных
+    namespace Infrastructure_Types {
+        class Vector3 {
+            +double X
+            +double Y
+            +double Z
+        }
     }
 
-    %% Интерфейсы
-    class IVisitor {
+    %% Интерфейсы посетителя
+    class IVisitor~out T~ {
         <<interface>>
         +Visit(Ball) T
         +Visit(RectangularCuboid) T
@@ -22,14 +26,14 @@ classDiagram
         +Vector3 Position
         +Accept(IVisitor) T*
     }
-    Body --> Vector3 : Имеет координату
+    Body --> Vector3 : <small>имеет координату</small>
 
-    %% Геометрические тела
+    %% Конкретные геометрические тела
     class Ball {
         +double Radius
         +Accept(IVisitor) T
     }
-    Body <|-- Ball
+    Body <|-- Ball : <small>наследует</small>
 
     class RectangularCuboid {
         +double SizeX
@@ -37,45 +41,45 @@ classDiagram
         +double SizeZ
         +Accept(IVisitor) T
     }
-    Body <|-- RectangularCuboid
+    Body <|-- RectangularCuboid : <small>наследует</small>
 
     class Cylinder {
         +double SizeZ
         +double Radius
         +Accept(IVisitor) T
     }
-    Body <|-- Cylinder
+    Body <|-- Cylinder : <small>наследует</small>
 
     class CompoundBody {
         +IReadOnlyList~Body~ Parts
         +Accept(IVisitor) T
     }
-    Body <|-- CompoundBody
-    CompoundBody o-- Body : Состоит из
+    Body <|-- CompoundBody : <small>наследует</small>
+    CompoundBody o-- Body : <small>состоит из (агрегация)</small>
 
-    %% Посетители
+    %% Реализации посетителей
     class BoundingBoxVisitor {
         +Visit(Ball) RectangularCuboid
         +Visit(RectangularCuboid) RectangularCuboid
         +Visit(Cylinder) RectangularCuboid
         +Visit(CompoundBody) RectangularCuboid
     }
-    IVisitor <|.. BoundingBoxVisitor
+    IVisitor <|.. BoundingBoxVisitor : <small>реализует контракт</small>
 
     class BoxifyVisitor {
-        -BoundingBoxVisitor bboxVisitor
+        -BoundingBoxVisitor _bboxCore
         +Visit(Ball) Body
         +Visit(RectangularCuboid) Body
         +Visit(Cylinder) Body
         +Visit(CompoundBody) Body
     }
-    IVisitor <|.. BoxifyVisitor
-    BoxifyVisitor *-- BoundingBoxVisitor : Использует внутри
+    IVisitor <|.. BoxifyVisitor : <small>реализует контракт</small>
+    BoxifyVisitor *-- BoundingBoxVisitor : <small>использует внутри (композиция)</small>
 
-    
-    Body ..> IVisitor : Принимает для обхода
-    IVisitor ..> Ball : Знает структуру
-    IVisitor ..> RectangularCuboid : Знает структуру
-    IVisitor ..> Cylinder : Знает структуру
-    IVisitor ..> CompoundBody : Знает структуру
+    %% Зависимости логики 
+    Body ..> IVisitor : <small>принимает для обхода</small>
+    IVisitor ..> Ball : <small>анализирует</small>
+    IVisitor ..> RectangularCuboid : <small>анализирует</small>
+    IVisitor ..> Cylinder : <small>анализирует</small>
+    IVisitor ..> CompoundBody : <small>анализирует</small>
 ```
