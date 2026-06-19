@@ -29,7 +29,7 @@ classDiagram
         +RobotAI(Func~int, TCommand~ factoryDelegate)
         +GetCommand() TCommand
     }
-    IRobotAI~TCommand~ <|.. RobotAI~TCommand~
+    IRobotAI~TCommand~ <|.. RobotAI~TCommand~ : реализует
 
     class ShooterAI {
         +ShooterAI()
@@ -45,7 +45,7 @@ classDiagram
     class Mover~TCommand~ {
         +ExecuteCommand(TCommand order) string
     }
-    IDevice~TCommand~ <|.. Mover~TCommand~
+    IDevice~TCommand~ <|.. Mover~TCommand~ : реализует
 
     class Mover {
         +Mover()
@@ -70,7 +70,7 @@ classDiagram
         +Create~TCommand~(IRobotAI~TCommand~ mindUnit, IDevice~TCommand~ hardwareUnit) Robot~TCommand~
     }
     
-    Robot~TCommand~ --> IRobotAI~TCommand~ : mindUnit
-    Robot~TCommand~ --> IDevice~TCommand~ : hardwareUnit
-    RobotStatic ..> Robot~TCommand~ : creates
+    Robot~TCommand~ --> IRobotAI~TCommand~ : использует (интеллект)
+    Robot~TCommand~ --> IDevice~TCommand~ : использует (оборудование)
+    RobotStatic ..> Robot~TCommand~ : создает
 ```
