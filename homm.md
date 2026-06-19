@@ -1,5 +1,6 @@
-using System;
+```mermaid
 
+using System;
 namespace Inheritance.MapObjects;
 
 // 1. Интерфейсы компонентов взаимодействий
@@ -72,3 +73,4 @@ public static class Interaction
         }
     }
 }
+```
