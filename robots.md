@@ -1,76 +1,65 @@
 ```mermaid
 classDiagram
-    %% --- ИНТЕРФЕЙСЫ И КОМАНДЫ ---
-    class IRobotAI~out TCommand~ {
-        <<interface>>
-        +GetCommand() TCommand
-    }
-    
-    class IDevice~in TCommand~ {
-        <<interface>>
-        +ExecuteCommand(TCommand command) string
-    }
+    direction TB
 
-    class IMoveCommand {
-        <<interface>>
-        +Point Destination
-    }
+    %% Инфраструктурные интерфейсы команд
+    class IMoveCommand { <<interface>> }
+    class IShooterMoveCommand { <<interface>> }
+    class ShooterCommand
+    class BuilderCommand
     
-    class IShooterMoveCommand {
-        <<interface>>
-        +bool ShouldHide
-    }
     IMoveCommand <|-- IShooterMoveCommand
+    IShooterMoveCommand <|.. ShooterCommand
+    IMoveCommand <|.. BuilderCommand
 
-    %% --- КОМПОНЕНТЫ ИИ ---
-    class RobotAI~TCommand~ {
-        -int _stepsPassed
-        -Func~int, TCommand~ _factoryDelegate
-        +RobotAI(Func~int, TCommand~ factoryDelegate)
+    %% Базовые интерфейсы ИИ и Устройств
+    class IRobotAI {
+        <<interface>>
         +GetCommand() TCommand
     }
-    IRobotAI~TCommand~ <|.. RobotAI~TCommand~ : реализует
-
-    class ShooterAI {
-        +ShooterAI()
-    }
-    RobotAI~ShooterCommand~ <|-- ShooterAI
-
-    class BuilderAI {
-        +BuilderAI()
-    }
-    RobotAI~BuilderCommand~ <|-- BuilderAI
-
-    %% --- ЖЕЛЕЗО И УСТРОЙСТВА ---
-    class Mover~TCommand~ {
-        +ExecuteCommand(TCommand order) string
-    }
-    IDevice~TCommand~ <|.. Mover~TCommand~ : реализует
-
-    class Mover {
-        +Mover()
-    }
-    Mover~IMoveCommand~ <|-- Mover
-
-    class ShooterMover {
-        +ExecuteCommand(IShooterMoveCommand order) string
-    }
-    Mover~IShooterMoveCommand~ <|-- ShooterMover
-
-    %% --- СИСТЕМА РОБОТА ---
-    class Robot~TCommand~ {
-        -IRobotAI~TCommand~ _mindUnit
-        -IDevice~TCommand~ _hardwareUnit
-        +Robot(IRobotAI~TCommand~ mindUnit, IDevice~TCommand~ hardwareUnit)
-        +Start(int steps) IEnumerable~string~
+    class IDevice {
+        <<interface>>
+        +ExecuteCommand(TCommand) string
     }
 
-    class RobotStatic {
-        <<static>>
-        +Create~TCommand~(IRobotAI~TCommand~ mindUnit, IDevice~TCommand~ hardwareUnit) Robot~TCommand~
+    %% Обобщенная логика
+    class RobotAI {
+        -int stepsPassed
+        -Func factoryDelegate
+        +GetCommand() TCommand
     }
-    
-    Robot~TCommand~ --> IRobotAI~TCommand~ : использует (интеллект)
-    Robot~TCommand~ --> IDevice~TCommand~ : использует (оборудование)
-    RobotStatic ..> Robot~TCommand~ : создает
+    IRobotAI <|.. RobotAI : реализует
+
+    class MoverBase {
+        +ExecuteCommand(TCommand) string
+    }
+    IDevice <|.. MoverBase : реализует
+
+    %% Реализации ИИ
+    class ShooterAI { +ShooterAI() }
+    class BuilderAI { +BuilderAI() }
+    RobotAI <|-- ShooterAI
+    RobotAI <|-- BuilderAI
+
+    %% Реализации Устройств
+    class Mover { +Mover() }
+    class ShooterMover { +ExecuteCommand(IShooterMoveCommand) string }
+    MoverBase <|-- Mover
+    MoverBase <|-- ShooterMover
+
+    %% Главный класс Робота
+    class Robot {
+        -IRobotAI mindUnit
+        -IDevice hardwareUnit
+        +Robot(IRobotAI, IDevice)
+        +Start(int) IEnumerable
+    }
+    Robot *--> IRobotAI : интеллект
+    Robot *--> IDevice : оборудование
+
+    %% Статический метод фабрики без экранирования
+    class RobotInference {
+        +Create(IRobotAI, IDevice)$ Robot
+    }
+    RobotInference ..> Robot : создает
 ```
