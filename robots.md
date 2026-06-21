@@ -2,7 +2,7 @@
 classDiagram
     direction TB
 
-    %% Инфраструктурные интерфейсы команд
+    %% 1. Иерархия интерфейсов и команд
     class IMoveCommand { <<interface>> }
     class IShooterMoveCommand { <<interface>> }
     class ShooterCommand
@@ -12,54 +12,56 @@ classDiagram
     IShooterMoveCommand <|.. ShooterCommand
     IMoveCommand <|.. BuilderCommand
 
-    %% Базовые интерфейсы ИИ и Устройств
-    class IRobotAI {
+    %% 2. Обобщенные контракты (Строго с дженериками в именах классов)
+    class IRobotAI_TCommand_ {
         <<interface>>
         +GetCommand() TCommand
     }
-    class IDevice {
+    class IDevice_TCommand_ {
         <<interface>>
         +ExecuteCommand(TCommand) string
     }
 
-    %% Обобщенная логика
-    class RobotAI {
-        -int stepsPassed
-        -Func factoryDelegate
-        +GetCommand() TCommand
+    %% 3. Реализации Искусственного Интеллекта
+    class ShooterAI {
+        -int _stepsPassed
+        +GetCommand() ShooterCommand
     }
-    IRobotAI <|.. RobotAI : реализует
-
-    class MoverBase {
-        +ExecuteCommand(TCommand) string
+    class BuilderAI {
+        -int _stepsPassed
+        +GetCommand() BuilderCommand
     }
-    IDevice <|.. MoverBase : реализует
+    IRobotAI_TCommand_ <|.. ShooterAI
+    IRobotAI_TCommand_ <|.. BuilderAI
 
-    %% Реализации ИИ
-    class ShooterAI { +ShooterAI() }
-    class BuilderAI { +BuilderAI() }
-    RobotAI <|-- ShooterAI
-    RobotAI <|-- BuilderAI
+    %% 4. Реализации Устройств-Исполнителей (Через абстрактный класс)
+    class Device_TCommand_ {
+        <<abstract>>
+        +ExecuteCommand(TCommand) string*
+    }
+    IDevice_TCommand_ <|.. Device_TCommand_
 
-    %% Реализации Устройств
-    class Mover { +Mover() }
-    class ShooterMover { +ExecuteCommand(IShooterMoveCommand) string }
-    MoverBase <|-- Mover
-    MoverBase <|-- ShooterMover
+    class Mover {
+        +ExecuteCommand(IMoveCommand) string
+    }
+    class ShooterMover {
+        +ExecuteCommand(IShooterMoveCommand) string
+    }
+    Device_TCommand_ <|-- Mover
+    Device_TCommand_ <|-- ShooterMover
 
-    %% Главный класс Робота
-    class Robot {
-        -IRobotAI mindUnit
-        -IDevice hardwareUnit
+    %% 5. Главный управляющий класс и Фабрика
+    class Robot_TCommand_ {
+        -IRobotAI _mindUnit
+        -IDevice _hardwareUnit
         +Robot(IRobotAI, IDevice)
         +Start(int) IEnumerable
     }
-    Robot *--> IRobotAI : интеллект
-    Robot *--> IDevice : оборудование
+    Robot_TCommand_ --> IRobotAI_TCommand_
+    Robot_TCommand_ --> IDevice_TCommand_
 
-    %% Статический метод фабрики без экранирования
-    class RobotInference {
-        +Create(IRobotAI, IDevice)$ Robot
+    class RobotFactory {
+        +Create(IRobotAI, IDevice)\$ Robot_TCommand_
     }
-    RobotInference ..> Robot : создает
+    RobotFactory ..> Robot_TCommand_
 ```
