@@ -2,8 +2,8 @@
 classDiagram
     %% Главный класс-контейнер и перечисления
     class DotGraphBuilder {
-        +DirectedGraph(string)\$ IGraphBuilder
-        +UndirectedGraph(string)\$ IGraphBuilder
+        +DirectedGraph(string)$ IGraphBuilder
+        +UndirectedGraph(string)$ IGraphBuilder
     }
     
     class NodeShape {
@@ -98,12 +98,12 @@ classDiagram
         +Dictionary Attributes
     }
 
-    %% Вложенность классов внутри DotGraphBuilder
-    DotGraphBuilder +-- GraphBuilder
-    DotGraphBuilder +-- NodeBuilder
-    DotGraphBuilder +-- EdgeBuilder
-    DotGraphBuilder +-- NodeAttributesBuilder
-    DotGraphBuilder +-- EdgeAttributesBuilder
+    %% Исправлено: замена проблемного синтаксиса +-- на стандартные связи вложенности/композиции
+    DotGraphBuilder *--> GraphBuilder : Содержит внутри
+    DotGraphBuilder *--> NodeBuilder : Содержит внутри
+    DotGraphBuilder *--> EdgeBuilder : Содержит внутри
+    DotGraphBuilder *--> NodeAttributesBuilder : Содержит внутри
+    DotGraphBuilder *--> EdgeAttributesBuilder : Содержит внутри
 
     %% Перекрестные связи строителей (Переходы состояний)
     GraphBuilder --> Graph : Управляет структурой
